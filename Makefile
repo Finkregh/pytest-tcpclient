@@ -8,7 +8,7 @@ message = @echo "\033[1;38;5:123m$1\033[0m"
 BUILD_CONFIG := pyproject.toml dev_dependencies.txt
 
 .make/venv_refreshed: $(BUILD_CONFIG)
-	python -m pip install -e .[dev]
+	uv pip install -e .[dev]
 	mkdir -p ${@D}
 	touch $@
 
@@ -45,7 +45,7 @@ clean:
 
 .PHONY: distclean
 distclean: clean
-	rm -rf venv
+	rm -rf .venv
 
 .PHONY: style
 style: | refresh_env

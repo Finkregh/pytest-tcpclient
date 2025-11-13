@@ -3,11 +3,11 @@ Development
 
 If you want to use a virtual environment, do that first and activate it. You
 can use any virtual environment system you like. However, if you want to use
-``virtualenv`` (and you already have ``virtualenv`` installed) you could do this:
+``uv`` (and you already have ``uv`` installed) you could do this:
 
 .. code-block:: sh
 
-   $ virtualenv -p3.8 venv
+   $ uv venv --python 3.14 venv
 
 Next, make the project:
 

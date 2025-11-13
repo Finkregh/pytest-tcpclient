@@ -8,4 +8,5 @@ pycodestyle>=2.5.0,<3
 pytest-cov>=5
 rst-include~=2.1
 tox>=4
+nox[uv]
 twine>=3.1.1
