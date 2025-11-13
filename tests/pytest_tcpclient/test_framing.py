@@ -25,8 +25,8 @@ async def test_vanilla(tcpserver):
     assert await read_frame(reader) == b""
     assert await read_frame(reader) == b""
 
-
-@pytest.mark.asyncio()
+@pytest.mark.timeout(5)
+@pytest.mark.asyncio
 async def test_partial_header(tcpserver):
 
     reader, writer = await asyncio.open_connection(None, tcpserver.service_port)
