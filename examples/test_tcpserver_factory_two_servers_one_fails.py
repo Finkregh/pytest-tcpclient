@@ -1,12 +1,20 @@
 import asyncio
+
 import pytest
 
 from pytest_tcpclient.framing import write_frame
 
 
-@pytest.mark.asyncio()
-async def test_tcpserver_factory_two_servers_one_fails(tcpserver_factory):
+@pytest.mark.asyncio
+async def test_tcpserver_factory_two_servers_one_fails(
+    tcpserver_factory: MockTcpServerFactory,
+) -> None:
+    """Test that two servers can be created, with one failing expectations.
 
+    This test demonstrates that when multiple servers are created using the
+    factory, one can succeed with its expected interactions while another
+    fails to meet its expectations (missing expected frame).
+    """
     server_1 = await tcpserver_factory()
     server_1.expect_connect()
     server_1.expect_frame(b"Client hello 1")

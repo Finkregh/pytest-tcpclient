@@ -1,12 +1,9 @@
 import asyncio
 import logging
-
 from dataclasses import dataclass
 
 import pytest
 import pytest_asyncio
-from _pytest.outcomes import OutcomeException
-
 
 from .framing import read_frame, write_frame
 
@@ -53,19 +50,16 @@ class NoRemainingSentData(ServerActionEvent):
 
 @dataclass
 class ExceptionEvent(ServerActionEvent):
-
     exception: Exception
 
 
 @dataclass
 class BytesReadEvent(ServerActionEvent):
-
     bytes_read: bytes
 
 
 @dataclass
 class FrameReadEvent(ServerActionEvent):
-
     payload: bytes
 
 
@@ -76,29 +70,25 @@ class TimeoutEvent(ServerActionEvent):
 
 @dataclass
 class IncompleteReadEvent(ServerActionEvent):
-
     partial: bytes
 
 
 @dataclass
 class UnreadSentBytes(ServerActionEvent):
-
     def __init__(self, unread_bytes):
         self.unread_bytes = unread_bytes
 
 
 class UnexpectedEventError(Exception):
-
     def __init__(self, expected_event, actual_event):
         super().__init__(
-            f"UnexpectedEventError(expected_event={expected_event}, actual_event={actual_event}"
+            f"UnexpectedEventError(expected_event={expected_event}, actual_event={actual_event}",
         )
         self.expected_event = expected_event
         self.actual_event = actual_event
 
 
 class ExpectConnect:
-
     def __init__(self, server, timeout):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.server = server
@@ -130,7 +120,6 @@ class ExpectConnect:
 
 
 class ExpectIsConnected:
-
     def __init__(self, server):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.server = server
@@ -144,13 +133,15 @@ class ExpectIsConnected:
 
         self.logger.debug("Expecting client to already be connected")
         if not self.server.connected:
-            raise UnexpectedEventError(ClientConnectedEvent(), ClientNotConnectedEvent())
+            raise UnexpectedEventError(
+                ClientConnectedEvent(),
+                ClientNotConnectedEvent(),
+            )
 
         self.logger.debug("Client connected")
 
 
 class ExpectClientCalledWriterClose:
-
     def __init__(self, server, timeout):
         self.server = server
         self.timeout = timeout
@@ -172,7 +163,6 @@ class ExpectClientCalledWriterClose:
 
 
 class ExpectClientCalledWriterWaitClosed:
-
     def __init__(self, server, timeout):
         self.server = server
         self.timeout = timeout
@@ -194,7 +184,6 @@ class ExpectClientCalledWriterWaitClosed:
 
 
 class ExpectBytes:
-
     def __init__(self, server, expected_bytes, timeout):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.server = server
@@ -210,12 +199,13 @@ class ExpectBytes:
             )
             self.logger.debug("Bytes read: %s", received)
             return BytesReadEvent(received)
-        except asyncio.TimeoutError as e:
+        except TimeoutError:
             self.logger.debug("Timed out waiting to read bytes %s", self.expected_bytes)
             return TimeoutEvent()
         except asyncio.IncompleteReadError as e:
             self.logger.debug(
-                "Incomplete read while trying to read bytes %s", self.expected_bytes
+                "Incomplete read while trying to read bytes %s",
+                self.expected_bytes,
             )
             return IncompleteReadEvent(e.partial)
 
@@ -229,7 +219,6 @@ class ExpectBytes:
 
 
 class ExpectFrame:
-
     def __init__(self, server, expected_payload, timeout):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.server = server
@@ -245,21 +234,29 @@ class ExpectFrame:
             )
             self.logger.debug("Payload read: %s", payload)
             return FrameReadEvent(payload)
-        except asyncio.TimeoutError as e:
-            self.logger.debug("Timed out waiting to read frame %s", self.expected_payload)
+        except TimeoutError:
+            self.logger.debug(
+                "Timed out waiting to read frame %s",
+                self.expected_payload,
+            )
             return TimeoutEvent()
 
     async def evaluate(self):
         next_event = await self.server.server_event_queue.get()
         if not isinstance(next_event, FrameReadEvent):
-            raise UnexpectedEventError(FrameReadEvent(self.expected_payload), next_event)
+            raise UnexpectedEventError(
+                FrameReadEvent(self.expected_payload),
+                next_event,
+            )
         if next_event.payload != self.expected_payload:
-            raise UnexpectedEventError(FrameReadEvent(self.expected_payload), next_event)
+            raise UnexpectedEventError(
+                FrameReadEvent(self.expected_payload),
+                next_event,
+            )
         self.logger.debug("Expected frame was received: %s", self.expected_payload)
 
 
 class ExpectReadZeroBytes:
-
     def __init__(self, server, timeout):
         self.server = server
         self.timeout = timeout
@@ -272,9 +269,8 @@ class ExpectReadZeroBytes:
             )
             if len(received) == 0:
                 return ReadZeroBytes()
-            else:
-                return BytesReadEvent(received)
-        except ConnectionResetError as e:
+            return BytesReadEvent(received)
+        except ConnectionResetError:
             return ReadZeroBytes()
 
     async def evaluate(self):
@@ -284,7 +280,6 @@ class ExpectReadZeroBytes:
 
 
 class ExpectClientReadAllSentBytes:
-
     def __init__(self, server, timeout):
         self.server = server
         self.timeout = timeout
@@ -294,10 +289,10 @@ class ExpectClientReadAllSentBytes:
         read_bytes = self.server.data_read_by_client
         if read_bytes == sent_bytes:
             return NoRemainingSentData()
-        else:
-            assert sent_bytes.startswith(read_bytes), \
-                f"sent_bytes does not start with read_bytes: {sent_bytes=}, {read_bytes=}"
-            return UnreadSentBytes(sent_bytes[len(read_bytes):])
+        assert sent_bytes.startswith(
+            read_bytes,
+        ), f"sent_bytes does not start with read_bytes: {sent_bytes=}, {read_bytes=}"
+        return UnreadSentBytes(sent_bytes[len(read_bytes) :])
 
     async def evaluate(self):
         next_event = await self.server.server_event_queue.get()
@@ -306,7 +301,6 @@ class ExpectClientReadAllSentBytes:
 
 
 class SendBytes:
-
     def __init__(self, server, data):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.server = server
@@ -322,7 +316,6 @@ class SendBytes:
 
 
 class SendFrame:
-
     def __init__(self, server, payload):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.server = server
@@ -338,7 +331,6 @@ class SendFrame:
 
 
 class Disconnect:
-
     def __init__(self, server):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.server = server
@@ -353,7 +345,6 @@ class Disconnect:
 
 
 def interpret_error(exception):
-
     if not isinstance(exception, UnexpectedEventError):  # pragma: no cover
         return f"Cannot interpret {exception}, {type(exception)=}"
 
@@ -362,60 +353,79 @@ def interpret_error(exception):
 
     if isinstance(expected_event, ReadZeroBytes):
         if isinstance(actual_event, BytesReadEvent):
-            return "Received unexpected data while waiting for client to disconnect. " + \
-                    f"Data is {actual_event.bytes_read}."
+            return (
+                "Received unexpected data while waiting for client to disconnect. "
+                f"Data is {actual_event.bytes_read}."
+            )
     elif isinstance(expected_event, ClientCalledWriterClose):
         if isinstance(actual_event, SecondClientConnectionAttempted):
-            return "While waiting for client to disconnect a " + \
+            return (
+                "While waiting for client to disconnect a "
                 "second connection was attempted."
-        elif isinstance(actual_event, TimeoutEvent):
-            return "Timed out waiting for client to disconnect. " + \
-                    "Remember to call `writer.close()`."
-        elif isinstance(actual_event, ExceptionEvent):
-            if isinstance(actual_event.exception, ConnectionResetError):
-                return "Connection was reset. Did client close writer prematurely?"
+            )
+        if isinstance(actual_event, TimeoutEvent):
+            return (
+                "Timed out waiting for client to disconnect. "
+                "Remember to call `writer.close()`."
+            )
+        if isinstance(actual_event, ExceptionEvent) and isinstance(
+            actual_event.exception,
+            ConnectionResetError,
+        ):
+            return "Connection was reset. Did client close writer prematurely?"
     elif isinstance(expected_event, ClientConnectedEvent):
         if isinstance(actual_event, TimeoutEvent):
             return "Timed out waiting for client to connect."
-        elif isinstance(actual_event, ClientNotConnectedEvent):
-            return "Client is not connected. " + \
+        if isinstance(actual_event, ClientNotConnectedEvent):
+            return (
+                "Client is not connected. "
                 "Did you forget to call `asyncio.open_connection`?"
+            )
     elif isinstance(expected_event, BytesReadEvent):
         if isinstance(actual_event, TimeoutEvent):
             return f"Timed out waiting for {expected_event.bytes_read}"
-        elif isinstance(actual_event, ClientConnectedEvent):
-            return "Missing `expect_connect()` before " + \
-                    f"`expect_bytes({expected_event.bytes_read})`"
-        elif isinstance(actual_event, BytesReadEvent):
-            return f"Expected to read {expected_event.bytes_read} " + \
-                    f"but actually read {actual_event.bytes_read}"
-        elif isinstance(actual_event, IncompleteReadEvent):
+        if isinstance(actual_event, ClientConnectedEvent):
+            return (
+                "Missing `expect_connect()` before "
+                f"`expect_bytes({expected_event.bytes_read})`"
+            )
+        if isinstance(actual_event, BytesReadEvent):
+            return (
+                f"Expected to read {expected_event.bytes_read} "
+                f"but actually read {actual_event.bytes_read}"
+            )
+        if isinstance(actual_event, IncompleteReadEvent):
             if not actual_event.partial:
-                return f"Expected to read {expected_event.bytes_read} " + \
-                        f"but only read {actual_event.partial} " + \
-                        f"before the connection was closed."
+                return (
+                    f"Expected to read {expected_event.bytes_read} "
+                    f"but only read {actual_event.partial} "
+                    "before the connection was closed."
+                )
     elif isinstance(expected_event, FrameReadEvent):
         if isinstance(actual_event, TimeoutEvent):
             return f"Timed out waiting for frame {expected_event.payload}"
         # elif isinstance(actual_event, ClientConnectedEvent):
         #     return "Missing `expect_connect()` before " + \
         #             f"`expect_bytes({expected_event.bytes_read})`"
-        elif isinstance(actual_event, FrameReadEvent):
-            return f"Expected to get frame {expected_event.payload} " + \
-                    f"but actually got frame {actual_event.payload}"
+        if isinstance(actual_event, FrameReadEvent):
+            return (
+                f"Expected to get frame {expected_event.payload} "
+                f"but actually got frame {actual_event.payload}"
+            )
     elif isinstance(expected_event, ClientCalledWriterWaitClosed):
         if isinstance(actual_event, TimeoutEvent):
             return "Timed out waiting for client to call `await writer.wait_closed()`."
     elif isinstance(expected_event, NoRemainingSentData):
         if isinstance(actual_event, UnreadSentBytes):
-            return "There is data sent by server that was not read by client: " + \
-                    f"unread_bytes={actual_event.unread_bytes}."
+            return (
+                "There is data sent by server that was not read by client: "
+                f"unread_bytes={actual_event.unread_bytes}."
+            )
 
     return f"Cannot interpret {exception}, {type(exception)=}"  # pragma: no cover
 
 
 class InterceptorProtocol:
-
     def __init__(self, server, original_protocol):
         self.server = server
         self.original_protocol = original_protocol
@@ -440,7 +450,6 @@ class InterceptorProtocol:
 
 
 class MockTcpServer:
-
     def __init__(self, service_port, mocker):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.service_port = service_port
@@ -480,7 +489,11 @@ class MockTcpServer:
         self.mocker.patch.object(self.client_writer, "close", self.client_writer_close)
 
         self.original_client_writer_wait_closed = self.client_writer.wait_closed
-        self.mocker.patch.object(self.client_writer, "wait_closed", self.client_writer_wait_closed)
+        self.mocker.patch.object(
+            self.client_writer,
+            "wait_closed",
+            self.client_writer_wait_closed,
+        )
 
         self.original_client_reader_read = self.client_reader.read
         self.mocker.patch.object(self.client_reader, "read", self.client_read)
@@ -490,7 +503,11 @@ class MockTcpServer:
         # self.mocker.patch.object(self.client_reader, "readline", self.client_readline)
 
         self.original_client_reader_readexactly = self.client_reader.readexactly
-        self.mocker.patch.object(self.client_reader, "readexactly", self.client_readexactly)
+        self.mocker.patch.object(
+            self.client_reader,
+            "readexactly",
+            self.client_readexactly,
+        )
 
         self.original_client_reader_readuntil = self.client_reader.readuntil
         self.mocker.patch.object(self.client_reader, "readuntil", self.client_readuntil)
@@ -549,9 +566,7 @@ class MockTcpServer:
         await self.start_accepting_connections()
 
     async def start_accepting_connections(self):
-
         def handle_client_connection(reader, writer):
-
             self.logger.debug("client connection established")
             if self.connected:
                 self.server_event_queue.put_nowait(SecondClientConnectionAttempted())
@@ -580,7 +595,6 @@ class MockTcpServer:
 
     async def evaluate_expectations(self):
         while True:
-
             # If there are already errors, there's no point evaluating the expectation.
             # However, we do still have to call `task_done` on the queue to
             # signal that the expectation has been processed.
@@ -663,9 +677,13 @@ class MockTcpServer:
 
     def expect_bytes(self, expected_bytes, timeout=1):
         self.check_not_stopped()
-        self.expecations_queue.put_nowait(ExpectBytes(
-            self, expected_bytes=expected_bytes, timeout=timeout
-        ))
+        self.expecations_queue.put_nowait(
+            ExpectBytes(
+                self,
+                expected_bytes=expected_bytes,
+                timeout=timeout,
+            ),
+        )
 
     def send_bytes(self, data):
         self.check_not_stopped()
@@ -673,9 +691,13 @@ class MockTcpServer:
 
     def expect_frame(self, expected_payload, timeout=1):
         self.check_not_stopped()
-        self.expecations_queue.put_nowait(ExpectFrame(
-            self, expected_payload=expected_payload, timeout=timeout
-        ))
+        self.expecations_queue.put_nowait(
+            ExpectFrame(
+                self,
+                expected_payload=expected_payload,
+                timeout=timeout,
+            ),
+        )
 
     def send_frame(self, payload):
         self.check_not_stopped()
@@ -685,7 +707,9 @@ class MockTcpServer:
         self.check_not_stopped()
         self.expecations_queue.put_nowait(ExpectIsConnected(self))
         self.expecations_queue.put_nowait(ExpectClientCalledWriterClose(self, timeout))
-        self.expecations_queue.put_nowait(ExpectClientCalledWriterWaitClosed(self, timeout))
+        self.expecations_queue.put_nowait(
+            ExpectClientCalledWriterWaitClosed(self, timeout),
+        )
         self.expecations_queue.put_nowait(ExpectReadZeroBytes(self, timeout))
         self.expecations_queue.put_nowait(ExpectClientReadAllSentBytes(self, timeout))
 
@@ -695,7 +719,6 @@ class MockTcpServer:
 
 
 class MockTcpServerFactory:
-
     def __init__(self, unused_tcp_port_factory, mocker):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.unused_tcp_port_factory = unused_tcp_port_factory
@@ -704,13 +727,13 @@ class MockTcpServerFactory:
         self.original_open_connection = asyncio.open_connection
         self.mocker.patch(
             "asyncio.open_connection",
-            self.intercept_open_connection
+            self.intercept_open_connection,
         )
         self.orignal_create_connection = asyncio.get_event_loop().create_connection
         self.mocker.patch.object(
             asyncio.get_event_loop(),
             "create_connection",
-            self.intercept_create_connection
+            self.intercept_create_connection,
         )
 
     async def __call__(self):
@@ -726,7 +749,12 @@ class MockTcpServerFactory:
         return client_reader, client_writer
 
     async def intercept_create_connection(
-        self, protocol_factory, host, port, *args, **kwargs
+        self,
+        protocol_factory,
+        host,
+        port,
+        *args,
+        **kwargs,
     ):
         server = self.servers[port]
 
@@ -734,7 +762,11 @@ class MockTcpServerFactory:
             return server.protocol_factory(protocol_factory())
 
         return await self.orignal_create_connection(
-            factory, host, port, *args, **kwargs
+            factory,
+            host,
+            port,
+            *args,
+            **kwargs,
         )
 
     async def stop(self):
@@ -754,13 +786,13 @@ class MockTcpServerFactory:
             raise errors[0]
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(loop_scope="function", scope="function")
 async def tcpserver_factory(unused_tcp_port_factory, mocker):
     factory = MockTcpServerFactory(unused_tcp_port_factory, mocker)
     yield factory
     await factory.stop()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(loop_scope="function", scope="function")
 async def tcpserver(tcpserver_factory):
     return await tcpserver_factory()

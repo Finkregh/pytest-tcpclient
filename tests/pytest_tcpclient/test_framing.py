@@ -2,12 +2,12 @@ import asyncio
 
 import pytest
 
-from pytest_tcpclient.framing import write_frame, read_frame
+from pytest_tcpclient.framing import read_frame, write_frame  # type: ignore[import]
+from pytest_tcpclient.plugin import MockTcpServer  # type: ignore[import]
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_vanilla(tcpserver):
-
     reader, writer = await asyncio.open_connection(None, tcpserver.service_port)
     tcpserver.expect_connect()
     await tcpserver.join()
@@ -25,10 +25,9 @@ async def test_vanilla(tcpserver):
     assert await read_frame(reader) == b""
     assert await read_frame(reader) == b""
 
-@pytest.mark.timeout(5)
+
 @pytest.mark.asyncio
 async def test_partial_header(tcpserver):
-
     reader, writer = await asyncio.open_connection(None, tcpserver.service_port)
     tcpserver.expect_connect()
     await tcpserver.join()
@@ -40,7 +39,7 @@ async def test_partial_header(tcpserver):
 
     with pytest.raises(
         asyncio.IncompleteReadError,
-        match="1 bytes read on a total of 4 expected bytes"
+        match="1 bytes read on a total of 4 expected bytes",
     ):
         assert await read_frame(reader)
 
@@ -48,9 +47,8 @@ async def test_partial_header(tcpserver):
     await writer.wait_closed()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_partial_payload(tcpserver):
-
     reader, writer = await asyncio.open_connection(None, tcpserver.service_port)
     tcpserver.expect_connect()
     await tcpserver.join()
@@ -62,7 +60,7 @@ async def test_partial_payload(tcpserver):
 
     with pytest.raises(
         asyncio.IncompleteReadError,
-        match="4 bytes read on a total of 7 expected bytes"
+        match="4 bytes read on a total of 7 expected bytes",
     ):
         assert await read_frame(reader)
 

@@ -1,10 +1,10 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_server_disconnect(tcpserver):
-
     tcpserver.expect_connect()
     tcpserver.disconnect()
 

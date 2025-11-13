@@ -1,10 +1,10 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_expect_disconnect_receives_unexpected_bytes(tcpserver):
-
     tcpserver.expect_connect()
     tcpserver.expect_disconnect(timeout=0.2)
 

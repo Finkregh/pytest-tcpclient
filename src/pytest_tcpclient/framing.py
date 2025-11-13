@@ -18,5 +18,5 @@ async def read_frame(reader):
         if len(e.partial) == 0:
             return b""
         raise
-    message_length, = struct.unpack(">I", header_bytes)
+    (message_length,) = struct.unpack(">I", header_bytes)
     return await reader.readexactly(message_length)

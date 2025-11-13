@@ -1,9 +1,10 @@
 import asyncio
-import pytest
 import struct
 
+import pytest
 
-@pytest.mark.asyncio()
+
+@pytest.mark.asyncio
 async def test_send_frame_success(tcpserver):
     tcpserver.expect_connect()
     reader, writer = await asyncio.open_connection(None, tcpserver.service_port)
@@ -13,7 +14,7 @@ async def test_send_frame_success(tcpserver):
 
     # The client receives the frame. First the header and then the payload.
     header_bytes = await reader.readexactly(4)
-    message_length, = struct.unpack(">I", header_bytes)
+    (message_length,) = struct.unpack(">I", header_bytes)
     assert await reader.readexactly(message_length) == b"Hello"
 
     writer.close()

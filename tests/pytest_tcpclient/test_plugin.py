@@ -1,11 +1,12 @@
-import asyncio
 import pytest
 
 
 def assert_failure(result, message, server_variable_name="tcpserver"):
     __tracebackhide__ = True
     result.assert_outcomes(failed=1)
-    lines = result.stdout.get_lines_after(f">       await {server_variable_name}.join()")
+    lines = result.stdout.get_lines_after(
+        f">       await {server_variable_name}.join()"
+    )
     assert lines[0] == f"E       Failed: {message}"
 
 
@@ -28,7 +29,8 @@ def test_second_connection_causes_failure(pytester):
     pytester.copy_example("test_second_connection_causes_failure.py")
     result = pytester.runpytest()
     assert_failure(
-        result, "While waiting for client to disconnect a second connection was attempted."
+        result,
+        "While waiting for client to disconnect a second connection was attempted.",
     )
 
 
@@ -44,7 +46,7 @@ def test_expect_disconnect_close_not_called(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "Timed out waiting for client to disconnect. Remember to call `writer.close()`."
+        "Timed out waiting for client to disconnect. Remember to call `writer.close()`.",
     )
 
 
@@ -53,7 +55,7 @@ def test_expect_disconnect_wait_closed_not_called(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "Timed out waiting for client to call `await writer.wait_closed()`."
+        "Timed out waiting for client to call `await writer.wait_closed()`.",
     )
 
 
@@ -62,7 +64,7 @@ def test_expect_disconnect_receives_unexpected_bytes(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "Received unexpected data while waiting for client to disconnect. Data is b'Hello'."
+        "Received unexpected data while waiting for client to disconnect. Data is b'Hello'.",
     )
 
 
@@ -82,7 +84,7 @@ def test_expect_bytes_connection_closed(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "Expected to read b'Hello, world' but only read b'' before the connection was closed."
+        "Expected to read b'Hello, world' but only read b'' before the connection was closed.",
     )
 
 
@@ -102,7 +104,7 @@ def test_sent_data_not_read(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "There is data sent by server that was not read by client: unread_bytes=b'Hola!'."
+        "There is data sent by server that was not read by client: unread_bytes=b'Hola!'.",
     )
 
 
@@ -111,7 +113,7 @@ def test_readuntil(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "There is data sent by server that was not read by client: unread_bytes=b'BBB'."
+        "There is data sent by server that was not read by client: unread_bytes=b'BBB'.",
     )
 
 
@@ -120,7 +122,7 @@ def test_readline(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "There is data sent by server that was not read by client: unread_bytes=b'Two\\n'."
+        "There is data sent by server that was not read by client: unread_bytes=b'Two\\n'.",
     )
 
 
@@ -129,7 +131,7 @@ def test_readexactly(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "There is data sent by server that was not read by client: unread_bytes=b'Two'."
+        "There is data sent by server that was not read by client: unread_bytes=b'Two'.",
     )
 
 
@@ -138,7 +140,7 @@ def test_connection_reset_error(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "Connection was reset. Did client close writer prematurely?"
+        "Connection was reset. Did client close writer prematurely?",
     )
 
 
@@ -152,7 +154,7 @@ def test_expect_connect_is_absent(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "Missing `expect_connect()` before `expect_bytes(b'Hello, world')`"
+        "Missing `expect_connect()` before `expect_bytes(b'Hello, world')`",
     )
 
 
@@ -161,7 +163,7 @@ def test_early_error_doesnt_hang_test(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "Expected to read b'Hello' but actually read b'Adios'"
+        "Expected to read b'Hello' but actually read b'Adios'",
     )
 
 
@@ -180,7 +182,7 @@ def test_expect_frame_times_out(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "Timed out waiting for frame b'Goodbye, world'"
+        "Timed out waiting for frame b'Goodbye, world'",
     )
 
 
@@ -189,7 +191,7 @@ def test_expect_frame_wrong_bytes_sent(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "Expected to get frame b'Bonjour' but actually got frame b'Goodbye, world'"
+        "Expected to get frame b'Bonjour' but actually got frame b'Goodbye, world'",
     )
 
 
@@ -203,8 +205,8 @@ def test_sent_frame_not_read(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "There is data sent by server that was not read by client: " +
-        "unread_bytes=b'\\x00\\x00\\x00\\x05Hello'."
+        "There is data sent by server that was not read by client: "
+        "unread_bytes=b'\\x00\\x00\\x00\\x05Hello'.",
     )
 
 
@@ -253,7 +255,7 @@ def test_expect_disconnect_no_connection(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "Client is not connected. Did you forget to call `asyncio.open_connection`?"
+        "Client is not connected. Did you forget to call `asyncio.open_connection`?",
     )
 
 
@@ -262,5 +264,7 @@ def test_tcpserver_factory_two_servers_fail(pytester):
     result = pytester.runpytest()
     result.assert_outcomes(failed=1)
     lines = result.stdout.get_lines_after(">       await tcpserver_factory.stop()")
-    assert lines[0] == \
-        "E       Failed: Expected to read b'Hello_1' but actually read b'Hello_2'"
+    assert (
+        lines[0]
+        == "E       Failed: Expected to read b'Hello_1' but actually read b'Hello_2'"
+    )

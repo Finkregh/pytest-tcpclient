@@ -1,10 +1,10 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_expect_bytes_success(tcpserver):
-
     # --------------------------------------------------------------------------
     # Server expectations
 

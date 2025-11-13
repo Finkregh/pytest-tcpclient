@@ -1,11 +1,11 @@
 import asyncio
-import pytest
 import struct
 
+import pytest
 
-@pytest.mark.asyncio()
+
+@pytest.mark.asyncio
 async def test_expect_frame_success(tcpserver):
-
     tcpserver.expect_connect()
     tcpserver.expect_frame(b"Goodbye, world")
 

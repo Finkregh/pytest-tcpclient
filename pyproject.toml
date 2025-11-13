@@ -1,16 +1,10 @@
 [build-system]
-requires = [
-    "setuptools>=61.0.0",
-    "setuptools_scm[toml]>=6.2",
-    "wheel",
-]
+requires = ["setuptools>=61.0.0", "setuptools_scm[toml]>=6.2", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytest-tcpclient"
-authors = [
-    { name="Anders Lindstrom", email="anders@anderslindstrom.com"},
-]
+authors = [{ name = "Anders Lindstrom", email = "anders@anderslindstrom.com" }]
 description = "A pytest plugin for testing TCP clients"
 readme = ".github/README.rst"
 requires-python = ">=3.8"
@@ -20,11 +14,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dynamic = ["version", "optional-dependencies"]
-dependencies = [
-    "pytest>8",
-    "pytest-asyncio",
-    "pytest-mock"
-]
+dependencies = ["pytest>8", "pytest-asyncio", "pytest-mock"]
 
 [project.urls]
 "Homepage" = "https://github.com/andersglindstrom/pytest-tcpclient.git"

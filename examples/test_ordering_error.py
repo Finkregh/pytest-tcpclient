@@ -1,10 +1,10 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_ordering_error(tcpserver):
-
     # This scenario used to cause an error
 
     tcpserver.expect_connect()

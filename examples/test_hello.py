@@ -1,10 +1,10 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_hello(tcpserver):
-
     # ==========================================================================
     # Establish expectations and replies on the server side.
     #

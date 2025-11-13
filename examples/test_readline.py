@@ -1,10 +1,10 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_readline(tcpserver):
-
     # Server expectations
     tcpserver.expect_connect()
     tcpserver.send_bytes(b"One\nTwo\n")

@@ -1,12 +1,12 @@
 import asyncio
+
 import pytest
 
-from pytest_tcpclient.framing import write_frame, read_frame
+from pytest_tcpclient.framing import read_frame, write_frame
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_tcpserver_factory_second_connection_causes_failure(tcpserver_factory):
-
     server_1 = await tcpserver_factory()
     server_1.expect_connect()
     server_1.expect_frame(b"Client hello 1")

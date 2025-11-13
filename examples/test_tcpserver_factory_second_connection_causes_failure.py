@@ -1,10 +1,10 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_tcpserver_factory_second_connection_causes_failure(tcpserver_factory):
-
     server = await tcpserver_factory()
     server.expect_connect()
     server.expect_disconnect()

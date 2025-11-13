@@ -1,10 +1,10 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_expect_bytes_times_out(tcpserver):
-
     # --------------------------------------------------------------------------
     # Server expectations. The server just expects the client to connect, send
     # a message and then disconnect.

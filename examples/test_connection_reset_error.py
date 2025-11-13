@@ -1,10 +1,10 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
-async def test_connection_reset_error(tcpserver):
-
+@pytest.mark.asyncio
+async def test_connection_reset_error(tcpserver: MockTcpServer) -> None:
     # Somehow, the following scenario causes a connection reset error to be raised in the
     # mock server. Probably it will run differently on platforms other than Python 3.8 on Linux.
 

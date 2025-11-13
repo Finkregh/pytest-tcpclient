@@ -1,10 +1,10 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_sent_data_not_read(tcpserver):
-
     # Server expecations
     tcpserver.expect_connect()
     tcpserver.send_bytes(b"Hola!")
