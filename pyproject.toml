@@ -24,6 +24,10 @@ tcpclient = "pytest_tcpclient.plugin"
 
 [tool.pytest.ini_options]
 pytester_example_dir = "examples"
+asyncio_default_fixture_loop_scope = "function"
+asyncio_default_test_loop_scope = "function"
+asyncio_debug = true
+asyncio_mode = "auto"
 
 [tool.setuptools_scm]
 
