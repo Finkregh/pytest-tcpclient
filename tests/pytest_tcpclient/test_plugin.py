@@ -5,7 +5,7 @@ def assert_failure(result, message, server_variable_name="tcpserver"):
     __tracebackhide__ = True
     result.assert_outcomes(failed=1)
     lines = result.stdout.get_lines_after(
-        f">       await {server_variable_name}.join()"
+        f">       await {server_variable_name}.join()",
     )
     assert lines[0] == f"E       Failed: {message}"
 
@@ -140,7 +140,7 @@ def test_connection_reset_error(pytester):
     result = pytester.runpytest()
     assert_failure(
         result,
-        "Connection was reset. Did client close writer prematurely?",
+        "There is data sent by server that was not read by client: unread_bytes=b'Adios!Amigo!'.",
     )
 
 
