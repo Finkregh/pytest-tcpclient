@@ -109,7 +109,7 @@ class ExpectConnect:
                 self.server.server_event_queue.get(),
                 timeout=self.timeout,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             self.logger.debug("Timed out waiting for client to connect.")
             next_event = TimeoutEvent()
 
@@ -153,7 +153,7 @@ class ExpectClientCalledWriterClose:
                 timeout=self.timeout,
             )
             return ClientCalledWriterClose()
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return TimeoutEvent()
 
     async def evaluate(self):
@@ -174,7 +174,7 @@ class ExpectClientCalledWriterWaitClosed:
                 timeout=self.timeout,
             )
             return ClientCalledWriterWaitClosed()
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return TimeoutEvent()
 
     async def evaluate(self):

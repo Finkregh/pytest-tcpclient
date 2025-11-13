@@ -2,6 +2,8 @@ import asyncio
 
 import pytest
 
+from pytest_tcpclient.plugin import MockTcpServer
+
 
 @pytest.mark.asyncio
 async def test_second_connection_causes_failure(tcpserver: MockTcpServer) -> None:

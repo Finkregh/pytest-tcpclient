@@ -10,38 +10,39 @@ def assert_failure(result, message, server_variable_name="tcpserver"):
     assert lines[0] == f"E       Failed: {message}"
 
 
-def test_expect_connect_passes_1(pytester):
+def test_expect_connect_passes_1(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_connect_passes_1.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_expect_connect_passes_2(pytester):
+def test_expect_connect_passes_2(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_connect_passes_2.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_expect_connect_minimal(pytester):
+def test_expect_connect_minimal(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_connect_minimal.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_second_connection_causes_failure(pytester):
+def test_second_connection_causes_failure(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_second_connection_causes_failure.py")
-    result = pytester.runpytest()
+    result: pytest.RunResult = pytester.runpytest()
+    print(result.outlines)
     assert_failure(
         result,
         "While waiting for client to disconnect a second connection was attempted.",
     )
 
 
-def test_expect_connect_times_out(pytester):
+def test_expect_connect_times_out(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_connect_times_out.py")
     result = pytester.runpytest()
     result.assert_outcomes(failed=1)
     assert_failure(result, "Timed out waiting for client to connect.")
 
 
-def test_expect_disconnect_close_not_called(pytester):
+def test_expect_disconnect_close_not_called(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_disconnect_close_not_called.py")
     result = pytester.runpytest()
     assert_failure(
@@ -50,7 +51,7 @@ def test_expect_disconnect_close_not_called(pytester):
     )
 
 
-def test_expect_disconnect_wait_closed_not_called(pytester):
+def test_expect_disconnect_wait_closed_not_called(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_disconnect_wait_closed_not_called.py")
     result = pytester.runpytest()
     assert_failure(
@@ -59,7 +60,7 @@ def test_expect_disconnect_wait_closed_not_called(pytester):
     )
 
 
-def test_expect_disconnect_receives_unexpected_bytes(pytester):
+def test_expect_disconnect_receives_unexpected_bytes(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_disconnect_receives_unexpected_bytes.py")
     result = pytester.runpytest()
     assert_failure(
@@ -68,18 +69,18 @@ def test_expect_disconnect_receives_unexpected_bytes(pytester):
     )
 
 
-def test_expect_bytes_success(pytester):
+def test_expect_bytes_success(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_bytes_success.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_expect_bytes_times_out(pytester):
+def test_expect_bytes_times_out(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_bytes_times_out.py")
     result = pytester.runpytest()
     assert_failure(result, "Timed out waiting for b'Hello, world!'")
 
 
-def test_expect_bytes_connection_closed(pytester):
+def test_expect_bytes_connection_closed(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_bytes_connection_closed.py")
     result = pytester.runpytest()
     assert_failure(
@@ -88,18 +89,18 @@ def test_expect_bytes_connection_closed(pytester):
     )
 
 
-def test_expect_bytes_wrong_bytes_sent(pytester):
+def test_expect_bytes_wrong_bytes_sent(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_bytes_wrong_bytes_sent.py")
     result = pytester.runpytest()
     assert_failure(result, "Expected to read b'Bonjour' but actually read b'Goodbye'")
 
 
-def test_send_bytes(pytester):
+def test_send_bytes(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_send_bytes.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_sent_data_not_read(pytester):
+def test_sent_data_not_read(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_sent_data_not_read.py")
     result = pytester.runpytest()
     assert_failure(
@@ -108,7 +109,7 @@ def test_sent_data_not_read(pytester):
     )
 
 
-def test_readuntil(pytester):
+def test_readuntil(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_readuntil.py")
     result = pytester.runpytest()
     assert_failure(
@@ -117,7 +118,7 @@ def test_readuntil(pytester):
     )
 
 
-def test_readline(pytester):
+def test_readline(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_readline.py")
     result = pytester.runpytest()
     assert_failure(
@@ -126,7 +127,7 @@ def test_readline(pytester):
     )
 
 
-def test_readexactly(pytester):
+def test_readexactly(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_readexactly.py")
     result = pytester.runpytest()
     assert_failure(
@@ -135,7 +136,7 @@ def test_readexactly(pytester):
     )
 
 
-def test_connection_reset_error(pytester):
+def test_connection_reset_error(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_connection_reset_error.py")
     result = pytester.runpytest()
     assert_failure(
@@ -144,12 +145,12 @@ def test_connection_reset_error(pytester):
     )
 
 
-def test_delayed_join(pytester):
+def test_delayed_join(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_delayed_join.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_expect_connect_is_absent(pytester):
+def test_expect_connect_is_absent(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_connect_is_absent.py")
     result = pytester.runpytest()
     assert_failure(
@@ -158,7 +159,7 @@ def test_expect_connect_is_absent(pytester):
     )
 
 
-def test_early_error_doesnt_hang_test(pytester):
+def test_early_error_doesnt_hang_test(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_early_error_doesnt_hang_test.py")
     result = pytester.runpytest()
     assert_failure(
@@ -167,17 +168,17 @@ def test_early_error_doesnt_hang_test(pytester):
     )
 
 
-def test_ordering_error(pytester):
+def test_ordering_error(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_ordering_error.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_expect_frame_success(pytester):
+def test_expect_frame_success(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_frame_success.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_expect_frame_times_out(pytester):
+def test_expect_frame_times_out(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_frame_times_out.py")
     result = pytester.runpytest()
     assert_failure(
@@ -186,7 +187,7 @@ def test_expect_frame_times_out(pytester):
     )
 
 
-def test_expect_frame_wrong_bytes_sent(pytester):
+def test_expect_frame_wrong_bytes_sent(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_frame_wrong_bytes_sent.py")
     result = pytester.runpytest()
     assert_failure(
@@ -195,12 +196,12 @@ def test_expect_frame_wrong_bytes_sent(pytester):
     )
 
 
-def test_send_frame_success(pytester):
+def test_send_frame_success(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_send_frame_success.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_sent_frame_not_read(pytester):
+def test_sent_frame_not_read(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_sent_frame_not_read.py")
     result = pytester.runpytest()
     assert_failure(
@@ -210,22 +211,24 @@ def test_sent_frame_not_read(pytester):
     )
 
 
-def test_server_disconnect(pytester):
+def test_server_disconnect(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_server_disconnect.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_readexactly_incomplete(pytester):
+def test_readexactly_incomplete(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_readexactly_incomplete.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_tcpserver_factory_success(pytester):
+def test_tcpserver_factory_success(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_tcpserver_factory_success.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_tcpserver_factory_second_connection_causes_failure(pytester):
+def test_tcpserver_factory_second_connection_causes_failure(
+    pytester: pytest.Pytester,
+) -> None:
     pytester.copy_example("test_tcpserver_factory_second_connection_causes_failure.py")
     result = pytester.runpytest()
     assert_failure(
@@ -235,7 +238,7 @@ def test_tcpserver_factory_second_connection_causes_failure(pytester):
     )
 
 
-def test_tcpserver_factory_two_servers_one_fails(pytester):
+def test_tcpserver_factory_two_servers_one_fails(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_tcpserver_factory_two_servers_one_fails.py")
     result = pytester.runpytest()
     assert_failure(
@@ -245,12 +248,12 @@ def test_tcpserver_factory_two_servers_one_fails(pytester):
     )
 
 
-def test_hello(pytester):
+def test_hello(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_hello.py")
     pytester.runpytest().assert_outcomes(passed=1)
 
 
-def test_expect_disconnect_no_connection(pytester):
+def test_expect_disconnect_no_connection(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_expect_disconnect_no_connection.py")
     result = pytester.runpytest()
     assert_failure(
@@ -259,7 +262,7 @@ def test_expect_disconnect_no_connection(pytester):
     )
 
 
-def test_tcpserver_factory_two_servers_fail(pytester):
+def test_tcpserver_factory_two_servers_fail(pytester: pytest.Pytester) -> None:
     pytester.copy_example("test_tcpserver_factory_two_servers_fail.py")
     result = pytester.runpytest()
     result.assert_outcomes(failed=1)

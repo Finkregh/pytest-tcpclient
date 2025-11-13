@@ -2,6 +2,7 @@ import asyncio
 
 import pytest
 
+from pytest_tcpclient.plugin import MockTcpServer
 
 @pytest.mark.asyncio
 async def test_connection_reset_error(tcpserver: MockTcpServer) -> None:
