@@ -171,10 +171,22 @@ def test_connection_reset_error(pytester: pytest.Pytester) -> None:
     """Test handling of connection reset errors."""
     pytester.copy_example("test_connection_reset_error.py")
     result = pytester.runpytest()
-    assert_failure(
-        result,
-        "There is data sent by server that was not read by client: unread_bytes=b'Adios!Amigo!'.",
-    )
+    # This test can produce different error messages depending on the platform and Python version
+    # On Linux/GitHub Actions: "Connection was reset. Did client close writer prematurely?"
+    # On macOS: "There is data sent by server that was not read by client: unread_bytes=b'Adios!Amigo!'."
+    result.assert_outcomes(failed=1)
+    lines = result.stdout.get_lines_after(">       await tcpserver.join()")
+    error_message = lines[0]
+
+    # Accept either error message as both are valid depending on platform/timing
+    expected_messages = [
+        "E       Failed: Connection was reset. Did client close writer prematurely?",
+        "E       Failed: There is data sent by server that was not read by client: unread_bytes=b'Adios!Amigo!'.",
+    ]
+
+    assert (
+        error_message in expected_messages
+    ), f"Got unexpected error message: {error_message}"
 
 
 def test_delayed_join(pytester: pytest.Pytester) -> None:
