@@ -292,6 +292,8 @@ class ExpectBytes:
         """Read bytes from client."""
         try:
             self.logger.debug("Expecting to read bytes: %s", self.expected_bytes)
+            if self.server.reader is None:
+                raise RuntimeError("Server reader is not available")
             received = await asyncio.wait_for(
                 self.server.reader.readexactly(len(self.expected_bytes)),
                 timeout=self.timeout,
@@ -344,6 +346,8 @@ class ExpectFrame:
         """Read frame from client."""
         try:
             self.logger.debug("Expecting to read frame: %s", self.expected_payload)
+            if self.server.reader is None:
+                raise RuntimeError("Server reader is not available")
             payload = await asyncio.wait_for(
                 read_frame(self.server.reader),
                 timeout=self.timeout,
@@ -390,6 +394,8 @@ class ExpectReadZeroBytes:
     async def server_action(self) -> ReadZeroBytes | BytesReadEvent:
         """Attempt to read bytes, expecting zero bytes (connection closed)."""
         try:
+            if self.server.reader is None:
+                raise RuntimeError("Server reader is not available")
             received = await asyncio.wait_for(
                 self.server.reader.read(),
                 timeout=self.timeout,
@@ -460,6 +466,8 @@ class SendBytes:
     async def server_action(self) -> None:
         """Send bytes to client."""
         self.logger.debug("Sending bytes %s", self.data)
+        if self.server.writer is None:
+            raise RuntimeError("Server writer is not available")
         self.server.writer.write(self.data)
         await self.server.writer.drain()
 
@@ -485,6 +493,8 @@ class SendFrame:
     async def server_action(self) -> None:
         """Send frame to client."""
         self.logger.debug("Send frame %s", self.payload)
+        if self.server.writer is None:
+            raise RuntimeError("Server writer is not available")
         write_frame(self.server.writer, self.payload)
         await self.server.writer.drain()
 
@@ -508,6 +518,8 @@ class Disconnect:
     async def server_action(self) -> None:
         """Disconnect from client."""
         self.logger.debug("Server disconnecting")
+        if self.server.writer is None:
+            raise RuntimeError("Server writer is not available")
         self.server.writer.close()
         await self.server.writer.wait_closed()
 
@@ -761,7 +773,7 @@ class MockTcpServer:
             raise RuntimeError("Original client reader read method is not available")
         data = await self.original_client_reader_read(*args, **kwargs)
         self.data_read_by_client += data
-        return data
+        return bytes(data)
 
     # async def client_readline(self, *args, **kwargs):
     #     data = await self.original_client_reader_readline(*args, **kwargs)
@@ -780,12 +792,16 @@ class MockTcpServer:
 
         """
         try:
+            if self.original_client_reader_readexactly is None:
+                raise RuntimeError(
+                    "Original client reader readexactly method is not available",
+                )
             data = await self.original_client_reader_readexactly(*args, **kwargs)
             self.data_read_by_client += data
-            return data
+            return bytes(data)
         except asyncio.IncompleteReadError as e:
-            # Have to record the bytes we did read so that we don't wrongly accuse client
-            # of not reading them.
+            # Have to record the bytes we did read so that we don't wrongly accuse
+            # client of not reading them.
             self.data_read_by_client += e.partial
             raise
 
@@ -806,16 +822,22 @@ class MockTcpServer:
             )
         data = await self.original_client_reader_readuntil(*args, **kwargs)
         self.data_read_by_client += data
-        return data
+        return bytes(data)
 
     def client_writer_close(self) -> None:
         """Intercept client writer close method and set event flag."""
         self.client_called_writer_close.set()
+        if self.original_client_writer_close is None:
+            raise RuntimeError("Original client writer close method is not available")
         self.original_client_writer_close()
 
     async def client_writer_wait_closed(self) -> None:
         """Intercept client writer wait_closed method and set event flag."""
         self.client_called_writer_waited_closed.set()
+        if self.original_client_writer_wait_closed is None:
+            raise RuntimeError(
+                "Original client writer wait_closed method is not available",
+            )
         await self.original_client_writer_wait_closed()
 
     async def start(self) -> None:
@@ -834,8 +856,8 @@ class MockTcpServer:
         # `expect_connect` _before_ actually attempting the connection. It may
         # try the connection and then call `expect_connect`. We want that to
         # work. So we have to guarantee that the server is already accepting
-        # connections by the time the test is invoked with the `tcpserver`
-        # fixture.
+        # connections by the time the test is invoked with
+        # the `tcpserver: MockTcpServer) -> None:` fixture.
         await self.start_accepting_connections()
 
     async def start_accepting_connections(self) -> None:
@@ -875,6 +897,8 @@ class MockTcpServer:
 
         """
         self.data_sent_from_server += data
+        if self.original_writer_write is None:
+            raise RuntimeError("Original writer write method is not available")
         self.original_writer_write(data)
 
     async def evaluate_expectations(self) -> None:
@@ -940,7 +964,7 @@ class MockTcpServer:
             # Only try to join if we haven't already failed and stopped
             if not self.join_already_failed and not self.stopped:
                 await self.join()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self.logger.debug("Error during join: %s", e)
         finally:
             self.stopped = True
@@ -999,7 +1023,7 @@ class MockTcpServer:
     def check_not_stopped(self) -> None:
         """Check if the server has been stopped and raise exception if so."""
         if self.stopped:  # pragma: no cover
-            raise Exception("Fixture is stopped")
+            raise Exception("Fixture is stopped")  # noqa: TRY002
 
     def expect_connect(self, timeout: float = 1) -> None:
         """Add expectation that a client will connect.
@@ -1195,7 +1219,7 @@ class MockTcpServerFactory:
                 if not server.join_already_failed and not server.stopped:
                     server.expect_disconnect()
                 await server.stop()
-            except BaseException as e:
+            except BaseException as e:  # noqa: BLE001
                 # `pytest.fail` raises `_pytest.outcomes.OutcomeException` which
                 # is a subclass of `BaseException`. `OutcomeException` is not public
                 # so we can rely on it's existence.
