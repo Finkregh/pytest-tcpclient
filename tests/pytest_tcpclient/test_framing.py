@@ -1,3 +1,5 @@
+"""Tests for the framing module functionality."""
+
 import asyncio
 
 import pytest
@@ -7,7 +9,8 @@ from pytest_tcpclient.plugin import MockTcpServer  # type: ignore[import]
 
 
 @pytest.mark.asyncio
-async def test_vanilla(tcpserver):
+async def test_vanilla(tcpserver: MockTcpServer) -> None:
+    """Test basic frame reading and writing functionality."""
     reader, writer = await asyncio.open_connection(None, tcpserver.service_port)
     tcpserver.expect_connect()
     await tcpserver.join()
@@ -27,7 +30,8 @@ async def test_vanilla(tcpserver):
 
 
 @pytest.mark.asyncio
-async def test_partial_header(tcpserver):
+async def test_partial_header(tcpserver: MockTcpServer) -> None:
+    """Test read_frame behavior with partial header data."""
     reader, writer = await asyncio.open_connection(None, tcpserver.service_port)
     tcpserver.expect_connect()
     await tcpserver.join()
@@ -48,7 +52,8 @@ async def test_partial_header(tcpserver):
 
 
 @pytest.mark.asyncio
-async def test_partial_payload(tcpserver):
+async def test_partial_payload(tcpserver: MockTcpServer) -> None:
+    """Test read_frame behavior with partial payload data."""
     reader, writer = await asyncio.open_connection(None, tcpserver.service_port)
     tcpserver.expect_connect()
     await tcpserver.join()

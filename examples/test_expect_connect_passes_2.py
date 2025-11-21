@@ -4,6 +4,7 @@ import pytest
 
 from pytest_tcpclient.plugin import MockTcpServer
 
+
 @pytest.mark.asyncio
 async def test_expect_connect_passes_2(tcpserver: MockTcpServer) -> None:
     # Other order should also work

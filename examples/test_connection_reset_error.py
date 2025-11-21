@@ -4,6 +4,7 @@ import pytest
 
 from pytest_tcpclient.plugin import MockTcpServer
 
+
 @pytest.mark.asyncio
 async def test_connection_reset_error(tcpserver: MockTcpServer) -> None:
     # Somehow, the following scenario causes a connection reset error to be raised in the

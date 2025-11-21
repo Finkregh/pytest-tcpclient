@@ -1,3 +1,5 @@
+"""Configuration for pytest-tcpclient tests."""
+
 import tomllib
 from pathlib import Path
 
