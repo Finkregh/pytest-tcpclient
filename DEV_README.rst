@@ -18,6 +18,7 @@ Next, make the project:
 That will do the following:
 
 - Install all the dependencies
+- Run code formatting and linting with ruff and black
 - Run the tests
 - Generate a coverage report
 - Fail if the coverage is below 100%
@@ -36,8 +37,8 @@ Packages that ``pytest-tcpclient`` requires to run are listed in ``pyproject.tom
 Packages required for development (testing, coverage and linting) are listed in
 ``dev_dependencies.txt``.
 
-``tox`` has been configured (in ``tox.ini``) to install those packages before running
-the tests.
+``nox`` has been configured (in ``noxfile.py``) to install those packages before running
+the tests, linting, and formatting.
 
 ``setuptools`` has been configured to supply the option ``dev`` for those extra packages.
 For example, the ``Makefile`` has the following command to initialise the virtual
@@ -51,12 +52,15 @@ Default ``make`` target is ``style_and_test``
 +++++++++++++++++++++++++++++++++++++++++++++
 
 The default target in the ``Makfile`` is ``style_and_test`` which first calls
-the linter, then runs the tests and, finally, checks that code coverage is 100%
+the code formatter and linter (using ruff and black), then runs the tests and,
+finally, checks that code coverage is 100%
 
-``tox``
+``nox``
 +++++++
 
-``tox`` is only used for CI builds. See ``.github/workflows/build.yml``.
+``nox`` is used for running tests, linting, and formatting in isolated environments.
+It supports multiple Python versions and is used for both local development and CI builds.
+See ``.github/workflows/build.yml``.
 
 ``make`` detects changes to configuration files
 +++++++++++++++++++++++++++++++++++++++++++++++
@@ -67,7 +71,7 @@ Continuous Integration and Deployment
 +++++++++++++++++++++++++++++++++++++
 
 There is a workflow (``.github/workflows/build.yml``) that will build and test pull
-requests with ``tox``.
+requests with ``nox``.
 
 There is another workflow (``.github/workflows/publish.yml``) that is triggered
 by the appearance of new version tags on the ``main`` branch. It will

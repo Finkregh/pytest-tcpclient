@@ -38,7 +38,7 @@ run_examples: refresh_env
 
 .PHONY: clean
 clean:
-	rm -rf build dist .pytest_cache .tox .make .coverage examples_output
+	rm -rf build dist .pytest_cache .make .coverage examples_output
 	find . -name __pycache__ | xargs rm -rf
 	find . -name '*.egg-info' | xargs rm -rf
 	$(MAKE) -C docs clean
@@ -49,22 +49,26 @@ distclean: clean
 
 .PHONY: style
 style: | refresh_env
-	pycodestyle src tests
+	nox -s formatter lint
 
 #------------------------------------------------------------------------------
-# tox
+# nox
 
-tox_initialised := .make/tox_initialised
+.PHONY: nox
+nox: | refresh_env
+	nox
 
-.PHONY: tox
-tox: ${tox_initialised} | refresh_env
-	tox
+.PHONY: nox-test
+nox-test: | refresh_env
+	nox -s test
 
-${tox_initialised}: tox.ini $(BUILD_CONFIG) | refresh_env
-	$(call message,Building tox environment...)
-	mkdir -p ${@D}
-	tox -r --notest
-	touch $@
+.PHONY: nox-lint
+nox-lint: | refresh_env
+	nox -s lint
+
+.PHONY: nox-format
+nox-format: | refresh_env
+	nox -s formatter
 
 #------------------------------------------------------------------------------
 # distribution

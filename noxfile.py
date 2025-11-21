@@ -2,7 +2,7 @@
 
 import nox
 
-nox.options.sessions = ["formatter", "lint", "test"]
+nox.options.sessions = ["formatter", "lint", "mypy", "test"]
 nox.options.default_venv_backend = "uv|virtualenv"
 nox.options.reuse_existing_virtualenvs = True
 
@@ -19,17 +19,19 @@ def formatter(session: nox.Session) -> None:
 
 @nox.session(python=["3.14"])
 def lint(session: nox.Session) -> None:
-    """Run linters."""
+    """Lint with ruff."""
     session.install("ruff")
     session.install("-e", ".[dev]")
     session.run("ruff", "check", ".")
 
+
 @nox.session(python=["3.14"])
 def mypy(session: nox.Session) -> None:
-    """Run linters."""
+    """Typecheck with mypy."""
     session.install("mypy")
     session.install("-e", ".[dev]")
-    session.run("python3","-m", "mypy", "src")
+    session.run("python3", "-m", "mypy", "src")
+
 
 @nox.session(
     python=["3.14", "3.13", "3.12", "3.11"],
