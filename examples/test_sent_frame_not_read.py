@@ -1,8 +1,9 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_sent_frame_not_read_by_client(tcpserver):
     tcpserver.expect_connect()
     reader, writer = await asyncio.open_connection(None, tcpserver.service_port)

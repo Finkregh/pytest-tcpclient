@@ -1,10 +1,10 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_expect_bytes_connection_closed(tcpserver):
-
     # Server expectations
     tcpserver.expect_connect()
     reader, writer = await asyncio.open_connection(None, tcpserver.service_port)

@@ -2,20 +2,16 @@ name: Build pytest-tcpclient
 
 on: pull_request
 jobs:
-    build:
-      runs-on: ubuntu-latest
-      strategy:
-        matrix:
-          python-version: ["3.8"]
-      steps:
-        - uses: actions/checkout@v3
-        - name: Set up Python ${{matrix.python-version }}
-          uses: actions/setup-python@v4
-          with:
-            python-version: ${{ matrix.python-version }}
-        - name: Upgrade pip
-          run: python -m pip install --upgrade pip
-        - name: Install tox
-          run: pip install tox
-        - name: Run tox
-          run: tox -e py
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install the latest version of uv and set the python version
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+          activate-environment: "true"
+      - name: Test with nox
+        run: |
+            uv pip install nox
+            uv run --frozen nox

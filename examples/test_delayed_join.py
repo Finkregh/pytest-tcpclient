@@ -1,10 +1,10 @@
 import asyncio
+
 import pytest
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_delayed_join(tcpserver):
-
     # `join` not called until right at the end. This was written to expose a bug that
     # is now fixed.
 
